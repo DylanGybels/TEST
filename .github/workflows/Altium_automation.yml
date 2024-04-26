@@ -1,0 +1,29 @@
+name: Altium automation
+on: [workflow_dispatch, push]
+jobs:
+  Altium-automation:
+    runs-on: [self-hosted, Altium]
+    steps:
+      #- name: Fix long path error
+      #  run: |
+      #    git config --system core.longpaths true
+      - name: checkout repo content
+        uses: actions/checkout@v2 # checkout the repository content to github runner.
+      - name: setup python
+        uses: actions/setup-python@v3
+        with:
+          python-version: 3.10.4 #install the python needed
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install Requests
+      - name: execute py script # run the run.py to get the latest data
+        run: |
+          python .github/workflows/Altium_automation/run.py
+      - name: Commit report
+        run: |
+          git config --global user.name 'AltiumAutomation'
+          git config --global user.email 'system@magics.tech'
+          git add --ignore-errors --force *
+          git commit -am "Automated report of ${{ github.event.head_commit.message }}"
+          git push
